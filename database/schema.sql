@@ -24,3 +24,19 @@ CREATE TABLE instructors (
   email                 VARCHAR(150),
   department            VARCHAR(100)
 );
+
+CREATE TABLE courses (
+  course_id             VARCHAR(20)     PRIMARY KEY,
+  course_name           VARCHAR(150)    NOT NULL,
+  semester              VARCHAR(20),
+  instructor_id         VARCHAR(20),
+  FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)
+);
+
+CREATE TABLE assignments (
+  assignment_id         INT AUTO_INCREMENT PRIMARY KEY,
+  course_id             VARCHAR(20)     NOT NULL,
+  title                 VARCHAR(150)    NOT NULL,
+  due_date              DATE,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
