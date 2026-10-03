@@ -94,3 +94,15 @@ CREATE TABLE risk_scores (
   UNIQUE (student_id, week),
   CONSTRAINT chk_risk_value_range CHECK (value BETWEEN 0 AND 100)
 );
+
+CREATE TABLE alerts (
+  alert_id              INT AUTO_INCREMENT PRIMARY KEY,
+  student_id            VARCHAR(20)     NOT NULL,
+  risk_score_id         INT             NOT NULL,
+  advisor_id            VARCHAR(20)     NOT NULL,
+  sent_at               DATETIME        DEFAULT CURRENT_TIMESTAMP,
+  status                ENUM('sent', 'viewed', 'followed_up') DEFAULT 'sent',
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (risk_score_id) REFERENCES risk_scores(risk_score_id),
+  FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id)
+);
