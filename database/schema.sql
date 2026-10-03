@@ -60,3 +60,37 @@ CREATE TABLE advisor_students (
   FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id),
   FOREIGN KEY (student_id) REFERENCES students(student_id)
 );
+
+CREATE TABLE attendance_records (
+  attendance_id         INT AUTO_INCREMENT PRIMARY KEY,
+  student_id            VARCHAR(20)     NOT NULL,
+  course_id             VARCHAR(20)     NOT NULL,
+  date                  DATE            NOT NULL,
+  present               BOOLEAN         NOT NULL,
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (course_id) REFERENCES courses(course_id),
+  UNIQUE (student_id, course_id, date),
+  CONSTRAINT chk_attendance_date_not_future CHECK (date <= CURDATE())
+);
+
+CREATE TABLE submissions (
+  submission_id         INT AUTO_INCREMENT PRIMARY KEY,
+  student_id            VARCHAR(20)     NOT NULL,
+  assignment_id         INT             NOT NULL,
+  submitted_at          DATETIME        NOT NULL,
+  is_late               BOOLEAN         DEFAULT FALSE,
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id)
+);
+
+CREATE TABLE risk_scores (
+  risk_score_id         INT AUTO_INCREMENT PRIMARY KEY,
+  student_id            VARCHAR(20)     NOT NULL,
+  week                  DATE            NOT NULL,
+  value                 DECIMAL(5,2)    NOT NULL,
+  risk_level            ENUM('low', 'medium', 'high') NOT NULL,
+  computed_at           DATETIME        DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  UNIQUE (student_id, week),
+  CONSTRAINT chk_risk_value_range CHECK (value BETWEEN 0 AND 100)
+);
