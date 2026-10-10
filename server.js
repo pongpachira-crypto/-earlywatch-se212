@@ -40,6 +40,41 @@ app.get('/api/advisors/:advisorId/students', async (req, res) => {
   }
 });
 
+// Weekly risk score history for one student
+app.get('/api/students/:studentId/risk-scores', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT week, value, risk_level, computed_at
+       FROM risk_scores
+       WHERE student_id = ?
+       ORDER BY week`,
+      [req.params.studentId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Alerts sent to one advisor (advisor sees only their own alerts)
+app.get('/api/advisors/:advisorId/alerts', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT al.alert_id, al.student_id, s.name, al.sent_at, al.status
+       FROM alerts al
+       JOIN students s ON s.student_id = al.student_id
+       WHERE al.advisor_id = ?
+       ORDER BY al.sent_at DESC`,
+      [req.params.advisorId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`EarlyWatch running at http://localhost:${PORT}`);
 });
