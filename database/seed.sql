@@ -58,3 +58,12 @@ FROM assignments WHERE title = 'Lab 1: ER Diagram';
 INSERT INTO submissions (student_id, assignment_id, submitted_at, is_late)
 SELECT 'S002', assignment_id, '2026-09-21 09:00:00', TRUE
 FROM assignments WHERE title = 'Lab 1: ER Diagram';
+
+INSERT INTO risk_scores (student_id, week, value, risk_level, computed_at) VALUES
+('S004', '2026-09-07', 72.00, 'high',   '2026-09-14 06:00:00'),
+('S001', '2026-09-07', 15.00, 'low',    '2026-09-14 06:00:00'),
+('S002', '2026-09-07', 40.00, 'medium', '2026-09-14 06:00:00');
+
+INSERT INTO alerts (student_id, risk_score_id, advisor_id, sent_at, status)
+SELECT 'S004', risk_score_id, 'A01', '2026-09-14 07:00:00', 'sent'
+FROM risk_scores WHERE student_id = 'S004' AND week = '2026-09-07';
