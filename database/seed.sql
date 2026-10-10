@@ -44,6 +44,7 @@ INSERT INTO advisor_students (advisor_id, student_id, assigned_date, role) VALUE
 ('A02', 'S005', '2026-08-01', 'primary'),
 ('A02', 'S004', '2026-08-01', 'co-advisor');
 
+INSERT INTO attendance_records (student_id, course_id, date, present) VALUES
 ('S004', 'SE202', '2026-09-01', TRUE),
 ('S004', 'SE202', '2026-09-03', FALSE),
 ('S004', 'SE202', '2026-09-08', FALSE),

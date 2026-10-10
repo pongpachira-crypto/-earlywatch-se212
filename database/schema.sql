@@ -30,7 +30,7 @@ CREATE TABLE courses (
   course_name           VARCHAR(150)    NOT NULL,
   semester              VARCHAR(20),
   instructor_id         VARCHAR(20),
-  FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)
+  FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE assignments (
@@ -38,7 +38,7 @@ CREATE TABLE assignments (
   course_id             VARCHAR(20)     NOT NULL,
   title                 VARCHAR(150)    NOT NULL,
   due_date              DATE,
-  FOREIGN KEY (course_id) REFERENCES courses(course_id)
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE enrollments (
@@ -47,8 +47,8 @@ CREATE TABLE enrollments (
   semester              VARCHAR(20),
   enrolled_date         DATE,
   PRIMARY KEY (student_id, course_id),
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (course_id) REFERENCES courses(course_id)
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE advisor_students (
@@ -57,8 +57,8 @@ CREATE TABLE advisor_students (
   assigned_date         DATE,
   role                  ENUM('primary', 'co-advisor') NOT NULL,
   PRIMARY KEY (advisor_id, student_id),
-  FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id),
-  FOREIGN KEY (student_id) REFERENCES students(student_id)
+  FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE attendance_records (
@@ -67,8 +67,8 @@ CREATE TABLE attendance_records (
   course_id             VARCHAR(20)     NOT NULL,
   date                  DATE            NOT NULL,
   present               BOOLEAN         NOT NULL,
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (course_id) REFERENCES courses(course_id),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE (student_id, course_id, date)
 );
 
@@ -90,8 +90,8 @@ CREATE TABLE submissions (
   assignment_id         INT             NOT NULL,
   submitted_at          DATETIME        NOT NULL,
   is_late               BOOLEAN         DEFAULT FALSE,
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id)
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE risk_scores (
@@ -101,7 +101,7 @@ CREATE TABLE risk_scores (
   value                 DECIMAL(5,2)    NOT NULL,
   risk_level            ENUM('low', 'medium', 'high') NOT NULL,
   computed_at           DATETIME        DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE (student_id, week),
   CONSTRAINT chk_risk_value_range CHECK (value BETWEEN 0 AND 100)
 );
@@ -113,7 +113,7 @@ CREATE TABLE alerts (
   advisor_id            VARCHAR(20)     NOT NULL,
   sent_at               DATETIME        DEFAULT CURRENT_TIMESTAMP,
   status                ENUM('sent', 'viewed', 'followed_up') DEFAULT 'sent',
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (risk_score_id) REFERENCES risk_scores(risk_score_id),
-  FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id)
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (risk_score_id) REFERENCES risk_scores(risk_score_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
