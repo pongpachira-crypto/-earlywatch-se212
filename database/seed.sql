@@ -16,3 +16,30 @@ INSERT INTO students (student_id, name, program, year, baseline_attendance_rate)
 ('S003', 'Mook Chaiyaporn', 'SE', 3, 95.00),
 ('S004', 'Film Kittipong', 'SE', 2, 70.00),
 ('S005', 'Ice Supaporn', 'SE', 1, 90.00);
+
+INSERT INTO courses (course_id, course_name, semester, instructor_id) VALUES
+('SE101', 'Intro to Software Engineering', '1/2026', 'I01'),
+('SE202', 'Database Systems', '1/2026', 'I02'),
+('SE303', 'Computer Networks', '1/2026', 'I03');
+
+INSERT INTO assignments (course_id, title, due_date) VALUES
+('SE202', 'Lab 1: ER Diagram', '2026-09-20'),
+('SE202', 'Lab 2: Normalization', '2026-09-27'),
+('SE101', 'Assignment 1: Requirements Doc', '2026-09-18');
+
+INSERT INTO enrollments (student_id, course_id, semester, enrolled_date) VALUES
+('S001', 'SE101', '1/2026', '2026-08-15'),
+('S001', 'SE202', '1/2026', '2026-08-15'),
+('S002', 'SE202', '1/2026', '2026-08-16'),
+('S003', 'SE101', '1/2026', '2026-08-15'),
+('S003', 'SE303', '1/2026', '2026-08-16'),
+('S004', 'SE202', '1/2026', '2026-08-17'),
+('S005', 'SE101', '1/2026', '2026-08-15');
+
+INSERT INTO advisor_students (advisor_id, student_id, assigned_date, role) VALUES
+('A01', 'S001', '2026-08-01', 'primary'),
+('A01', 'S002', '2026-08-01', 'primary'),
+('A01', 'S004', '2026-08-01', 'primary'),
+('A02', 'S003', '2026-08-01', 'primary'),
+('A02', 'S005', '2026-08-01', 'primary'),
+('A02', 'S004', '2026-08-01', 'co-advisor');
