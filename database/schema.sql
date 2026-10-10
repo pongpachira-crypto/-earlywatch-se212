@@ -69,9 +69,20 @@ CREATE TABLE attendance_records (
   present               BOOLEAN         NOT NULL,
   FOREIGN KEY (student_id) REFERENCES students(student_id),
   FOREIGN KEY (course_id) REFERENCES courses(course_id),
-  UNIQUE (student_id, course_id, date),
-  CONSTRAINT chk_attendance_date_not_future CHECK (date <= CURDATE())
+  UNIQUE (student_id, course_id, date)
 );
+
+DELIMITER $$
+CREATE TRIGGER trg_attendance_no_future_date
+BEFORE INSERT ON attendance_records
+FOR EACH ROW
+BEGIN
+  IF NEW.date > CURDATE() THEN
+    SIGNAL SQLSTATE '45000'
+      SET MESSAGE_TEXT = 'Attendance date cannot be in the future (BR13)';
+  END IF;
+END$$
+DELIMITER ;
 
 CREATE TABLE submissions (
   submission_id         INT AUTO_INCREMENT PRIMARY KEY,
