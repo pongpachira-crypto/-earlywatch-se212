@@ -5,6 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
+app.use(express.json());
 
 // List all students
 app.get('/api/students', async (req, res) => {
@@ -69,6 +70,27 @@ app.get('/api/advisors/:advisorId/alerts', async (req, res) => {
       [req.params.advisorId]
     );
     res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Advisor marks an alert as viewed or followed up (supports objective O5)
+app.patch('/api/alerts/:alertId', async (req, res) => {
+  const { status } = req.body || {};
+  if (!['viewed', 'followed_up'].includes(status)) {
+    return res.status(400).json({ error: "status must be 'viewed' or 'followed_up'" });
+  }
+  try {
+    const [result] = await pool.execute(
+      'UPDATE alerts SET status = ? WHERE alert_id = ?',
+      [status, req.params.alertId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Alert not found' });
+    }
+    res.json({ alert_id: Number(req.params.alertId), status });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error' });
