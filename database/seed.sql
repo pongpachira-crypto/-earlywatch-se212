@@ -50,7 +50,11 @@ INSERT INTO attendance_records (student_id, course_id, date, present) VALUES
 ('S004', 'SE202', '2026-09-08', FALSE),
 ('S004', 'SE202', '2026-09-10', FALSE),
 ('S001', 'SE202', '2026-09-01', TRUE),
-('S001', 'SE202', '2026-09-03', TRUE);
+('S001', 'SE202', '2026-09-03', TRUE),
+('S002', 'SE202', '2026-09-01', TRUE),
+('S002', 'SE202', '2026-09-03', FALSE),
+('S002', 'SE202', '2026-09-08', FALSE),
+('S002', 'SE202', '2026-09-10', TRUE);
 
 INSERT INTO submissions (student_id, assignment_id, submitted_at, is_late)
 SELECT 'S001', assignment_id, '2026-09-19 22:10:00', FALSE
@@ -61,9 +65,15 @@ SELECT 'S002', assignment_id, '2026-09-21 09:00:00', TRUE
 FROM assignments WHERE title = 'Lab 1: ER Diagram';
 
 INSERT INTO risk_scores (student_id, week, value, risk_level, computed_at) VALUES
-('S004', '2026-09-07', 72.00, 'high',   '2026-09-14 06:00:00'),
+('S001', '2026-08-24', 10.00, 'low',    '2026-08-31 06:00:00'),
+('S001', '2026-08-31', 12.00, 'low',    '2026-09-07 06:00:00'),
 ('S001', '2026-09-07', 15.00, 'low',    '2026-09-14 06:00:00'),
-('S002', '2026-09-07', 40.00, 'medium', '2026-09-14 06:00:00');
+('S002', '2026-08-24', 32.00, 'medium', '2026-08-31 06:00:00'),
+('S002', '2026-08-31', 36.00, 'medium', '2026-09-07 06:00:00'),
+('S002', '2026-09-07', 40.00, 'medium', '2026-09-14 06:00:00'),
+('S004', '2026-08-24', 20.00, 'low',    '2026-08-31 06:00:00'),
+('S004', '2026-08-31', 45.00, 'medium', '2026-09-07 06:00:00'),
+('S004', '2026-09-07', 72.00, 'high',   '2026-09-14 06:00:00');
 
 INSERT INTO alerts (student_id, risk_score_id, advisor_id, sent_at, status)
 SELECT 'S004', risk_score_id, 'A01', '2026-09-14 07:00:00', 'sent'

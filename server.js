@@ -24,8 +24,8 @@ app.get('/api/students', async (req, res) => {
 app.get('/api/advisors/:advisorId/students', async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT s.student_id, s.name, a.role,
-              r.value AS risk_value, r.risk_level, r.week
+      `SELECT s.student_id, s.name, s.baseline_attendance_rate, a.role,
+              r.value AS risk_score, r.risk_level, r.week
        FROM advisor_students a
        JOIN students s ON s.student_id = a.student_id
        LEFT JOIN risk_scores r ON r.student_id = s.student_id
@@ -49,6 +49,23 @@ app.get('/api/students/:studentId/risk-scores', async (req, res) => {
        FROM risk_scores
        WHERE student_id = ?
        ORDER BY week`,
+      [req.params.studentId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// List one student's attendance records
+app.get('/api/students/:studentId/attendance', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT attendance_id, course_id, date, present
+       FROM attendance_records
+       WHERE student_id = ?
+       ORDER BY date DESC`,
       [req.params.studentId]
     );
     res.json(rows);
@@ -91,6 +108,42 @@ app.patch('/api/alerts/:alertId', async (req, res) => {
       return res.status(404).json({ error: 'Alert not found' });
     }
     res.json({ alert_id: Number(req.params.alertId), status });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// Add an attendance record (the trigger and constraints can reject it)
+app.post('/api/attendance', async (req, res) => {
+  const { student_id, course_id, date, status } = req.body || {};
+  if (!student_id || !course_id || !date || !['present', 'absent'].includes(status)) {
+    return res.status(400).json({ error: 'student_id, course_id, date and status are required' });
+  }
+  try {
+    const [result] = await pool.execute(
+      'INSERT INTO attendance_records (student_id, course_id, date, present) VALUES (?, ?, ?, ?)',
+      [student_id, course_id, date, status === 'present' ? 1 : 0]
+    );
+    res.status(201).json({ attendance_id: result.insertId });
+  } catch (err) {
+    // sqlMessage carries the database's own message, e.g.
+    // "Attendance date cannot be in the future (BR13)"
+    res.status(400).json({ error: err.sqlMessage || 'Database error' });
+  }
+});
+
+// Delete an attendance record
+app.delete('/api/attendance/:attendanceId', async (req, res) => {
+  try {
+    const [result] = await pool.execute(
+      'DELETE FROM attendance_records WHERE attendance_id = ?',
+      [req.params.attendanceId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+    res.json({ ok: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error' });

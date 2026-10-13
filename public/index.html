@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="only light">
 <title>Student Risk Monitor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,6 +437,7 @@ async function api(method, path, body) {
   if (!res.ok) {
     // Show the real database / trigger message, e.g. "Attendance date cannot be in the future (BR13)"
     let msg = pick(data, ['error', 'message', 'sqlMessage'], `Request failed (${res.status})`);
+    msg = msg.replace(/\s*\(BR\d+\)/g, '');
     if (res.status === 404 && path.includes('/attendance') && !data) msg = ATT_MISSING;
     const err = new Error(msg);
     err.status = res.status;
@@ -630,6 +632,7 @@ async function deleteAttendance(id) {
 }
 
 function showFormError(msg) {
+  msg = String(msg).replace(/\s*\(BR\d+\)/g, '');
   const el = $('#formError');
   el.innerHTML = `${esc(msg)}<small>Rejected by the database</small>`;
   el.classList.add('show');
