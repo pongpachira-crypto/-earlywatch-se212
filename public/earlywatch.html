@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Risk Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e8edf5;
+  --ink:#12111a;
+  --muted:#6f7aa6;
+  --blue:#5b7cfa;
+  --violet:#6d5cf0;
+  --high:#e5534b;
+  --med:#e9b72f;
+  --low:#3fb67a;
+  --glass:rgba(255,255,255,.42);
+  --glass-strong:rgba(255,255,255,.62);
+  --glass-border:rgba(255,255,255,.75);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;padding:28px;
+  background:var(--bg);color:var(--ink);
+  font-family:'Manrope','Noto Sans Thai',system-ui,sans-serif;
+  font-size:14px;
+}
+.shell{
+  max-width:1320px;margin:0 auto;padding:28px;border-radius:32px;
+  background:linear-gradient(135deg,#8c9cdc 0%,#aebbe4 45%,#c6d3e6 100%);
+  display:grid;grid-template-columns:56px minmax(0,1fr) 370px;gap:28px;
+  box-shadow:0 30px 80px rgba(80,100,170,.18);
+}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3,p{margin:0}
+
+/* sidebar */
+.side{display:flex;flex-direction:column;align-items:center;gap:14px}
+.logo{width:36px;height:36px;border-radius:12px;background:var(--ink);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:26px}
+.nav{display:flex;flex-direction:column;gap:10px}
+.nav a{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;color:#2b2f55;text-decoration:none;transition:.2s}
+.nav a:hover,.nav a.on{background:var(--glass-strong);box-shadow:0 4px 14px rgba(70,90,170,.18)}
+.nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.avatar{margin-top:auto;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#fff,#cfd8f6);display:grid;place-items:center;font-weight:800;font-size:12px;color:var(--violet);border:2px solid #fff}
+
+/* header */
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.head h1{font-size:26px;font-weight:600;letter-spacing:-.01em}
+.head .sub{color:var(--muted);font-size:13px;margin-top:4px}
+.picker{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:18px;background:rgba(255,255,255,.28);border:1px solid rgba(100,120,190,.35)}
+.picker label{color:var(--muted);font-size:12px}
+.picker select{border:0;background:transparent;font:inherit;font-weight:700;font-size:16px;outline:none;cursor:pointer;padding-right:4px}
+
+/* cards */
+.card{
+  background:var(--glass);border:1px solid var(--glass-border);border-radius:26px;padding:22px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.card + .card{margin-top:0}
+.stack{display:flex;flex-direction:column;gap:20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+.card-h h3{font-size:15px;font-weight:600}
+.label{color:#2b2f55;font-size:13px}
+.big{font-size:34px;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+
+.btn{border:0;border-radius:999px;padding:11px 20px;font-weight:600;font-size:13px;transition:.2s}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.dark:hover{background:#2a2840}
+.btn.ghost{background:rgba(255,255,255,.35);border:1px solid rgba(100,120,190,.4)}
+.btn.ghost:hover{background:rgba(255,255,255,.7)}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* overview bubbles */
+.overview{display:grid;grid-template-columns:1fr 190px;gap:24px;align-items:center}
+.bubbles{position:relative;display:flex;justify-content:center;align-items:center;margin-top:14px}
+.bubbles::before{content:"";position:absolute;left:18%;right:18%;top:50%;height:54px;transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,rgba(91,124,250,.55),transparent);filter:blur(14px)}
+.bubble{
+  position:relative;width:138px;height:138px;border-radius:50%;border:0;
+  background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.98),rgba(255,255,255,.5) 70%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.9),0 12px 30px rgba(91,124,250,.16);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:.25s;
+}
+.bubble.center{width:158px;height:158px;margin:0 -12px;z-index:2;background:radial-gradient(circle at 30% 22%,rgba(255,255,255,.95),rgba(214,208,255,.7) 75%)}
+.bubble:hover{transform:translateY(-3px)}
+.bubble b{font-size:24px;font-weight:700}
+.bubble span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.bubble i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.bubble.active{background:radial-gradient(circle at 32% 22%,#a99cff,#6d5cf0 72%);color:#fff;box-shadow:0 16px 38px rgba(109,92,240,.4)}
+.bubble.active span{color:rgba(255,255,255,.85)}
+.hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center}
+.actions{display:flex;flex-direction:column;gap:12px}
+
+/* table */
+.tbl-wrap{max-height:330px;overflow:auto;margin:0 -8px;padding:0 8px}
+table{width:100%;border-collapse:separate;border-spacing:0 4px}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--muted);padding:0 12px 6px;text-transform:uppercase;letter-spacing:.05em;position:sticky;top:0}
+td{padding:11px 12px;vertical-align:middle}
+tbody tr{cursor:pointer;transition:.15s}
+tbody tr td:first-child{border-radius:14px 0 0 14px}
+tbody tr td:last-child{border-radius:0 14px 14px 0}
+tbody tr:hover td{background:rgba(255,255,255,.4)}
+tbody tr.sel td{background:rgba(255,255,255,.75);box-shadow:0 4px 14px rgba(70,90,170,.1)}
+.who{display:flex;align-items:center;gap:12px}
+.ava{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;background:linear-gradient(135deg,#dfe5ff,#c9bfff);color:#3d34a8;flex:none}
+.who b{display:block;font-weight:600}
+.who small{color:var(--muted)}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;background:rgba(109,92,240,.14);color:#4b3fc4;vertical-align:middle}
+.meter{display:flex;align-items:center;gap:10px;font-weight:700}
+.meter .track{width:70px;height:6px;border-radius:99px;background:rgba(80,100,170,.15);overflow:hidden}
+.meter .fill{height:100%;border-radius:99px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.high{background:rgba(229,83,75,.15);color:#c23b34}
+.pill.medium{background:rgba(233,183,47,.22);color:#946b05}
+.pill.low{background:rgba(63,182,122,.18);color:#1d8553}
+.pill.none{background:rgba(111,122,166,.18);color:#4a5280}
+.pill.present{background:rgba(63,182,122,.18);color:#1d8553}
+.pill.absent{background:rgba(229,83,75,.15);color:#c23b34}
+.pill.new{background:var(--blue);color:#fff}
+.pill.viewed{background:rgba(255,255,255,.7);color:#4a5280}
+.pill.followed_up{background:rgba(63,182,122,.2);color:#1d8553}
+.empty{color:var(--muted);text-align:center;padding:26px 8px;font-size:13px}
+
+/* risk chart */
+.chart-card{
+  background:linear-gradient(180deg,#5f80fb 0%,#8fa8f7 55%,#c9d8f6 100%);
+  color:#fff;border:1px solid rgba(255,255,255,.5);position:relative;overflow:hidden;
+}
+.chart-card .card-h h3{color:#fff}
+.chart-card .sub2{font-size:12px;opacity:.85}
+.chart-num{font-size:40px;font-weight:600;line-height:1}
+.chart-card svg{width:100%;height:auto;display:block;margin-top:6px}
+.empty.light{color:rgba(255,255,255,.85)}
+
+/* attendance list */
+.rates{display:flex;gap:10px;margin-bottom:10px}
+.rates:empty{display:none}
+.rate{flex:1;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.45)}
+.rate small{display:block;color:var(--muted);font-size:11px;margin-bottom:2px}
+.rate b{font-size:20px;font-weight:700}
+.rate em{font-style:normal;font-size:11px;font-weight:600;margin-left:6px}
+.rate.below b,.rate.below em{color:#c23b34}
+.rate.ok em{color:#1d8553}
+.list{list-style:none;margin:0;padding:0;max-height:250px;overflow:auto}
+.list li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(100,120,190,.18)}
+.list li:last-child{border-bottom:0}
+.list .m{flex:1;min-width:0}
+.list .m b{display:block;font-weight:600}
+.list .m small{color:var(--muted)}
+.icon-btn{width:32px;height:32px;border-radius:50%;border:1px solid rgba(100,120,190,.35);background:rgba(255,255,255,.4);display:grid;place-items:center;transition:.2s}
+.icon-btn:hover{background:#fff;border-color:var(--high);color:var(--high)}
+.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* alerts */
+.alert{display:grid;grid-template-columns:34px 1fr auto;gap:4px 12px;padding:14px 0;border-bottom:1px solid rgba(100,120,190,.2)}
+.alert:last-child{border-bottom:0}
+.alert .ic{grid-row:1;width:32px;height:32px;border-radius:50%;border:1px solid rgba(100,120,190,.35);display:grid;place-items:center;font-weight:800;font-size:13px;color:var(--high);background:rgba(255,255,255,.4)}
+.alert .m b{display:block;font-weight:600}
+.alert .m span{display:block;color:#3d4372;font-size:12.5px;margin-top:2px}
+.alert .m small{color:var(--muted);font-size:11.5px}
+.alert .acts{grid-column:2 / 4;display:flex;gap:8px;margin-top:6px}
+
+/* form */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field select{
+  border:1px solid rgba(100,120,190,.35);background:rgba(255,255,255,.55);border-radius:14px;
+  padding:11px 14px;font:inherit;outline:none;color:var(--ink);transition:.2s;width:100%;
+}
+.field input:focus,.field select:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(91,124,250,.18)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;background:rgba(255,255,255,.45);border-radius:999px;padding:4px;gap:4px}
+.seg input{display:none}
+.seg label{flex:1;text-align:center;padding:8px 0;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted);transition:.2s}
+.seg input:checked + label{background:var(--ink);color:#fff}
+.form-error{display:none;margin-bottom:12px;padding:12px 14px;border-radius:14px;background:rgba(229,83,75,.14);border:1px solid rgba(229,83,75,.4);color:#a82a24;font-weight:600;font-size:13px;line-height:1.4}
+.form-error.show{display:block}
+.form-error small{display:block;font-weight:500;opacity:.8;margin-top:2px}
+
+/* toast + demo badge */
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,30px);opacity:0;pointer-events:none;
+  background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;font-weight:600;font-size:13px;transition:.3s;z-index:50;max-width:90vw}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.error{background:#b3302a}
+.demo{display:none;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:#fff5d6;color:#8a6a00;border:1px solid #f0d98a;margin-left:10px;vertical-align:middle}
+.demo.show{display:inline-block}
+
+@media (max-width:1180px){
+  .shell{grid-template-columns:minmax(0,1fr);}
+  .side{display:none}
+  .aside{margin-top:6px}
+}
+@media (max-width:720px){
+  body{padding:12px}.shell{padding:18px;border-radius:24px}
+  .overview,.row2{grid-template-columns:1fr}
+  .bubble{width:100px;height:100px}.bubble.center{width:118px;height:118px}
+  .head{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- sidebar -->
+  <aside class="side">
+    <div class="logo">R</div>
+    <nav class="nav">
+      <a href="#sec-overview" class="on" title="Overview"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.4c1.8.6 2.7 2.2 3 4.6"/></svg></a>
+      <a href="#sec-risk" title="Risk history"><svg viewBox="0 0 24 24"><path d="M4 18 9 12l4 3 7-9"/><path d="M4 21h16"/></svg></a>
+      <a href="#sec-attendance" title="Attendance"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4"/></svg></a>
+      <a href="#sec-alerts" title="Alerts"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></svg></a>
+    </nav>
+    <div class="avatar" id="sideAvatar">A01</div>
+  </aside>
+
+  <!-- main -->
+  <main>
+    <div class="head">
+      <div>
+        <h1>Student Risk Monitor <span class="demo" id="demoBadge">DEMO DATA</span></h1>
+        <p class="sub">Early-warning dashboard for academic advisors</p>
+      </div>
+      <div class="picker">
+        <label for="advisor">Advisor</label>
+        <select id="advisor">
+          <option value="A01">A01</option>
+          <option value="A02">A02</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="stack">
+      <!-- overview -->
+      <section class="card" id="sec-overview">
+        <div class="overview">
+          <div>
+            <p class="label">Total students</p>
+            <p class="big" id="total">0</p>
+            <div class="bubbles" id="bubbles"></div>
+            <p class="hint">Click a bubble to filter the table by risk level</p>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" id="btnRefresh">Refresh data</button>
+            <button class="btn dark" id="btnAdd">Add attendance</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- risk table -->
+      <section class="card" id="sec-table">
+        <div class="card-h">
+          <h3>Students by risk</h3>
+          <span class="label" id="tableNote"></span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Risk score</th><th>Level</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="row2">
+        <!-- risk history -->
+        <section class="card chart-card" id="sec-risk">
+          <div class="card-h">
+            <div>
+              <h3>Weekly risk score</h3>
+              <p class="sub2" id="detailName">—</p>
+            </div>
+          </div>
+          <div id="detail"></div>
+        </section>
+
+        <!-- attendance -->
+        <section class="card" id="sec-attendance">
+          <div class="card-h">
+            <h3>Attendance records</h3>
+            <span class="label" id="attName"></span>
+          </div>
+          <div class="rates" id="rates"></div>
+          <ul class="list" id="attList"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- right column -->
+  <aside class="aside">
+    <div class="head" style="margin-bottom:18px">
+      <div>
+        <h1>Alerts</h1>
+        <p class="sub">Latest from your students</p>
+      </div>
+      <span class="pill new" id="alertCount">0 new</span>
+    </div>
+
+    <div class="stack">
+      <section class="card" id="sec-alerts">
+        <div id="alertList"></div>
+      </section>
+
+      <section class="card" id="sec-form">
+        <div class="card-h"><h3>Add attendance</h3></div>
+        <form id="attForm" novalidate>
+          <div class="form-error" id="formError"></div>
+          <div class="field">
+            <label for="fStudent">Student</label>
+            <select id="fStudent" name="student"></select>
+          </div>
+          <div class="two">
+            <div class="field">
+              <label for="fCourse">Course</label>
+              <input id="fCourse" name="course" placeholder="e.g. SE202" required>
+            </div>
+            <div class="field">
+              <label for="fDate">Date</label>
+              <input id="fDate" name="date" type="date" required>
+            </div>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <div class="seg">
+              <input type="radio" name="status" id="stP" value="present" checked><label for="stP">Present</label>
+              <input type="radio" name="status" id="stA" value="absent"><label for="stA">Absent</label>
+            </div>
+          </div>
+          <button class="btn dark" type="submit" style="width:100%;padding:14px">Add record</button>
+        </form>
+      </section>
+    </div>
+  </aside>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const API = '';              // same origin (server.js serves this file from /public).
+                             // If you open this file another way, use 'http://localhost:3000'
+const DEMO_FALLBACK = true;  // if the server cannot be reached, use built-in demo data
+                             // (you can also force it by opening /?demo)
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = (o, keys, d = '') => { for (const k of keys) if (o && o[k] !== undefined && o[k] !== null) return o[k]; return d; };
+const ORDER = { high: 0, medium: 1, low: 2, none: 3 };
+const LEVEL_LABEL = { high: 'High', medium: 'Medium', low: 'Low', none: 'No score' };
+const levelOf = s => s >= 70 ? 'high' : s >= 40 ? 'medium' : 'low';
+const COLOR = { high: 'var(--high)', medium: 'var(--med)', low: 'var(--low)', none: 'var(--muted)' };
+const todayStr = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const fmtDate = s => {
+  // the backend sends dates as strings like "2026-09-14 07:00:00" (dateStrings: true)
+  const d = new Date(String(s ?? '').replace(' ', 'T'));
+  return isNaN(d) ? String(s ?? '') : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+};
+const initials = n => String(n).trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const enc = encodeURIComponent;
+
+const ATT_MISSING = 'The server has no attendance endpoint yet';
+
+const state = { advisor: 'A01', students: [], alerts: [], selected: null, risk: [], attendance: [], attErr: null, filter: null, demo: new URLSearchParams(location.search).has('demo') };
+
+/* ============================================================
+   Normalizers (map the backend's column names to what the UI uses)
+   ============================================================ */
+function normStudent(r) {
+  const id = String(pick(r, ['student_id', 'id']));
+  // /api/advisors/:id/students returns risk_value and risk_level (both null if no score yet)
+  const score = Number(pick(r, ['risk_value', 'risk_score', 'latest_risk_score', 'score', 'value'], NaN));
+  let level = String(pick(r, ['risk_level', 'level'], '')).toLowerCase();
+  if (!(level in ORDER) || level === 'none') level = isNaN(score) ? 'none' : levelOf(score);
+  return {
+    id, name: pick(r, ['name', 'student_name', 'full_name'], id),
+    score: isNaN(score) ? null : score, level,
+    role: pick(r, ['role'], ''),
+    baseline: pick(r, ['baseline_attendance_rate', 'baseline'], null)
+  };
+}
+function normAlert(r) {
+  const sid = String(pick(r, ['student_id'], ''));
+  const st = state.students.find(s => s.id === sid);
+  return {
+    id: String(pick(r, ['alert_id', 'id'])),
+    student: pick(r, ['student_name', 'name'], st ? st.name : sid),
+    message: pick(r, ['message', 'alert_message', 'description', 'alert_type'], 'High risk alert'),
+    // DB status 'sent' is shown as 'new'
+    status: (s => s === 'sent' ? 'new' : s)(String(pick(r, ['status', 'alert_status'], 'new')).toLowerCase().replace(/[\s-]+/g, '_')),
+    date: pick(r, ['created_at', 'alert_date', 'sent_at', 'date'], '')
+  };
+}
+function normRisk(r, i) {
+  const w = pick(r, ['week', 'week_number', 'week_start', 'week_start_date', 'date'], i + 1);
+  const label = typeof w === 'number' || /^\d+$/.test(String(w)) ? 'W' + w : fmtDate(w);
+  return { label, score: Number(pick(r, ['risk_score', 'score', 'value'], 0)) };
+}
+function normAtt(r) {
+  const st = String(pick(r, ['status', 'attendance_status', 'present', 'is_present'], '')).toLowerCase();
+  return {
+    id: String(pick(r, ['attendance_id', 'id'])),
+    course: pick(r, ['course_id', 'course_code', 'course', 'course_name'], '—'),
+    date: String(pick(r, ['attendance_date', 'date'], '')).slice(0, 10),
+    present: ['present', 'p', '1', 'true', 'attended'].includes(st)
+  };
+}
+
+/* ============================================================
+   API layer
+   ============================================================ */
+async function api(method, path, body) {
+  if (state.demo) return mockApi(method, path, body);
+  let res;
+  try {
+    res = await fetch(API + path, {
+      method, headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch (e) {
+    if (DEMO_FALLBACK) { state.demo = true; $('#demoBadge').classList.add('show'); return mockApi(method, path, body); }
+    throw new Error('Cannot reach the server');
+  }
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* no JSON body */ }
+  if (!res.ok) {
+    // Show the real database / trigger message, e.g. "Attendance date cannot be in the future (BR13)"
+    let msg = pick(data, ['error', 'message', 'sqlMessage'], `Request failed (${res.status})`);
+    if (res.status === 404 && path.includes('/attendance') && !data) msg = ATT_MISSING;
+    const err = new Error(msg);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+/* ============================================================
+   Loading
+   ============================================================ */
+async function loadAdvisor() {
+  try {
+    const [st, al] = await Promise.all([
+      api('GET', `/api/advisors/${enc(state.advisor)}/students`),
+      api('GET', `/api/advisors/${enc(state.advisor)}/alerts`)
+    ]);
+    state.students = (st || []).map(normStudent)
+      .sort((a, b) => ORDER[a.level] - ORDER[b.level] || (b.score ?? 0) - (a.score ?? 0));
+    state.alerts = (al || []).map(normAlert);
+    if (!state.students.some(s => s.id === state.selected)) state.selected = state.students[0]?.id ?? null;
+    renderAll();
+    await loadStudent();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function loadStudent() {
+  const id = state.selected;
+  state.risk = []; state.attendance = []; state.attErr = null;
+  if (id != null) {
+    try {
+      const rs = await api('GET', `/api/students/${enc(id)}/risk-scores`);
+      state.risk = (rs || []).map(normRisk);
+    } catch (e) { toast(e.message, 'error'); }
+    try {
+      const at = await api('GET', `/api/students/${enc(id)}/attendance`);
+      state.attendance = (at || []).map(normAtt).sort((a, b) => b.date.localeCompare(a.date));
+    } catch (e) { state.attErr = e.message; }
+  }
+  renderDetail(); renderAttendance();
+}
+
+/* ============================================================
+   Rendering
+   ============================================================ */
+function renderAll() { renderOverview(); renderTable(); renderAlerts(); renderForm(); }
+
+function renderOverview() {
+  const c = { high: 0, medium: 0, low: 0, none: 0 };
+  state.students.forEach(s => c[s.level]++);
+  $('#total').textContent = state.students.length;
+  const mk = (lv, label, cls = '') => `
+    <button class="bubble ${cls} ${state.filter === lv ? 'active' : ''}" data-filter="${lv}">
+      <b>${c[lv]}</b><span><i style="background:${COLOR[lv]}"></i>${label}</span>
+    </button>`;
+  $('#bubbles').innerHTML = mk('high', 'High risk') + mk('medium', 'Medium risk', 'center') + mk('low', 'Low risk');
+  $('#sideAvatar').textContent = state.advisor;
+}
+
+function renderTable() {
+  const rows = state.students.filter(s => !state.filter || s.level === state.filter);
+  $('#tableNote').textContent = state.filter ? `Showing ${state.filter} risk · ${rows.length}` : `${rows.length} students · sorted by risk`;
+  $('#tableBody').innerHTML = rows.length ? rows.map(s => `
+    <tr data-student="${esc(s.id)}" class="${s.id === state.selected ? 'sel' : ''}">
+      <td><div class="who"><div class="ava">${esc(initials(s.name))}</div><div><b>${esc(s.name)}</b><small>${esc(s.id)}</small>${s.role === 'co-advisor' ? '<span class="tag">co-advisor</span>' : ''}</div></div></td>
+      <td><div class="meter">${s.score ?? '—'}<div class="track"><div class="fill" style="width:${Math.min(s.score ?? 0, 100)}%;background:${COLOR[s.level]}"></div></div></div></td>
+      <td><span class="pill ${s.level}">${LEVEL_LABEL[s.level]}</span></td>
+    </tr>`).join('') : `<tr><td colspan="3" class="empty">No students to show</td></tr>`;
+}
+
+function smoothPath(pts) {
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2;
+    d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`;
+  }
+  return d;
+}
+
+function renderDetail() {
+  const st = state.students.find(s => s.id === state.selected);
+  $('#detailName').textContent = st ? `${st.name} · ${st.id}` : '—';
+  const data = state.risk;
+  if (!st || !data.length) { $('#detail').innerHTML = '<div class="empty light">No risk scores yet</div>'; return; }
+
+  const W = 340, H = 150, px = 20, top = 30, bot = 26, n = data.length;
+  const vals = data.map(d => d.score);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (lo === hi) { lo -= 5; hi += 5; }
+  const pts = data.map((d, i) => [
+    n === 1 ? W / 2 : px + i * (W - 2 * px) / (n - 1),
+    top + (1 - (d.score - lo) / (hi - lo)) * (H - top - bot)
+  ]);
+  const last = pts[n - 1], line = n > 1 ? smoothPath(pts) : `M${last[0]},${last[1]}`;
+  const labels = data.map((d, i) => (n > 8 && i % 2) ? '' :
+    `<text x="${pts[i][0]}" y="${H - 6}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.8)">${esc(d.label)}</text>`).join('');
+  const prev = n > 1 ? data[n - 2].score : null;
+  const delta = prev === null ? '' : (data[n - 1].score - prev >= 0 ? '▲ +' : '▼ ') + (data[n - 1].score - prev) + ' since last week';
+
+  $('#detail').innerHTML = `
+    <div class="chart-num">${data[n - 1].score}</div>
+    <p class="sub2">${esc(delta || 'Latest risk score')}</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly risk score line chart">
+      <defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+      ${n > 1 ? `<path d="${line} L${last[0]},${H - bot} L${pts[0][0]},${H - bot} Z" fill="url(#ar)"/>` : ''}
+      <path d="${line}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="${last[0]}" cy="${last[1]}" r="5.5" fill="#fff" stroke="rgba(255,255,255,.5)" stroke-width="4"/>
+      <text x="${last[0]}" y="${last[1] - 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${data[n - 1].score}</text>
+      ${labels}
+    </svg>`;
+}
+
+function renderRates(st) {
+  const el = $('#rates'), total = state.attendance.length;
+  if (!st || !total) { el.innerHTML = ''; return; }
+  const cur = Math.round(100 * state.attendance.filter(a => a.present).length / total);
+  let base = st.baseline === null || st.baseline === '' ? NaN : Number(st.baseline);
+  if (!isNaN(base)) base = Math.round(base <= 1 ? base * 100 : base);
+  const diff = cur - base;
+  el.innerHTML = `<div class="rate ${isNaN(base) ? '' : diff < 0 ? 'below' : 'ok'}"><small>Current attendance</small><b>${cur}%</b>${isNaN(base) ? '' : `<em>${diff >= 0 ? '+' : ''}${diff} pts</em>`}</div>`
+    + (isNaN(base) ? '' : `<div class="rate"><small>Own baseline</small><b>${base}%</b></div>`);
+}
+
+function renderAttendance() {
+  const st = state.students.find(s => s.id === state.selected);
+  $('#attName').textContent = st ? st.name : '';
+  renderRates(st);
+  if (state.attErr) { $('#attList').innerHTML = `<li><div class="empty" style="width:100%">Could not load attendance<br><small>${esc(state.attErr)}</small></div></li>`; return; }
+  $('#attList').innerHTML = state.attendance.length ? state.attendance.map(a => `
+    <li>
+      <div class="m"><b>${esc(a.course)}</b><small>${esc(fmtDate(a.date))} · ${esc(a.date)}</small></div>
+      <span class="pill ${a.present ? 'present' : 'absent'}">${a.present ? 'Present' : 'Absent'}</span>
+      <button class="icon-btn" data-del="${esc(a.id)}" title="Delete record" aria-label="Delete attendance record">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>
+      </button>
+    </li>`).join('') : '<li><div class="empty" style="width:100%">No attendance records</div></li>';
+}
+
+const STATUS_LABEL = { new: 'New', viewed: 'Viewed', followed_up: 'Followed up' };
+function renderAlerts() {
+  const newCount = state.alerts.filter(a => a.status === 'new').length;
+  $('#alertCount').textContent = `${newCount} new`;
+  $('#alertList').innerHTML = state.alerts.length ? state.alerts.map(a => `
+    <div class="alert">
+      <div class="ic">!</div>
+      <div class="m"><b>${esc(a.student)}</b><span>${esc(a.message)}</span><small>${esc(fmtDate(a.date))}</small></div>
+      <div><span class="pill ${esc(a.status)}">${esc(STATUS_LABEL[a.status] || cap(a.status.replace('_', ' ')))}</span></div>
+      <div class="acts">
+        <button class="btn ghost sm" data-alert="${esc(a.id)}" data-status="viewed" ${a.status === 'viewed' ? 'disabled' : ''}>Mark viewed</button>
+        <button class="btn dark sm" data-alert="${esc(a.id)}" data-status="followed_up" ${a.status === 'followed_up' ? 'disabled' : ''}>Followed up</button>
+      </div>
+    </div>`).join('') : '<div class="empty">No alerts 🎉</div>';
+}
+
+function renderForm() {
+  $('#fStudent').innerHTML = state.students.map(s =>
+    `<option value="${esc(s.id)}" ${s.id === state.selected ? 'selected' : ''}>${esc(s.name)} (${esc(s.id)})</option>`).join('');
+  if (!$('#fDate').value) $('#fDate').value = todayStr();
+}
+
+/* ============================================================
+   Actions
+   ============================================================ */
+let toastTimer;
+function toast(msg, type = 'ok') {
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'show ' + (type === 'error' ? 'error' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = '', 5000);
+}
+
+async function selectStudent(id) {
+  state.selected = id;
+  renderTable(); $('#fStudent').value = id;
+  await loadStudent();
+}
+
+async function setAlertStatus(id, status) {
+  try {
+    await api('PATCH', `/api/alerts/${enc(id)}`, { status });
+    const a = state.alerts.find(x => x.id === id); if (a) a.status = status;
+    renderAlerts(); toast(`Alert marked as ${STATUS_LABEL[status].toLowerCase()}`);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function deleteAttendance(id) {
+  if (!confirm('Delete this attendance record?')) return;
+  try {
+    await api('DELETE', `/api/attendance/${enc(id)}`);
+    toast('Attendance record deleted');
+    await loadAdvisor();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function showFormError(msg) {
+  const el = $('#formError');
+  el.innerHTML = `${esc(msg)}<small>Rejected by the database</small>`;
+  el.classList.add('show');
+}
+
+$('#attForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target;
+  $('#formError').classList.remove('show');
+  const body = { student_id: f.student.value, course_id: f.course.value.trim(), date: f.date.value, status: f.status.value };
+  if (!body.student_id || !body.course_id || !body.date) { showFormError('Student, course and date are required'); return; }
+  try {
+    await api('POST', '/api/attendance', body);
+    toast('Attendance added');
+    f.course.value = '';
+    await loadAdvisor();
+  } catch (err) {
+    showFormError(err.message);   // e.g. "Attendance date cannot be in the future (BR13)"
+    toast(err.message, 'error');
+  }
+});
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-filter],[data-student],[data-del],[data-alert]');
+  if (!t) return;
+  if (t.dataset.filter) { state.filter = state.filter === t.dataset.filter ? null : t.dataset.filter; renderOverview(); renderTable(); }
+  else if (t.dataset.student) selectStudent(t.dataset.student);
+  else if (t.dataset.del) deleteAttendance(t.dataset.del);
+  else if (t.dataset.alert) setAlertStatus(t.dataset.alert, t.dataset.status);
+});
+
+$('#advisor').addEventListener('change', e => { state.advisor = e.target.value; state.selected = null; state.filter = null; loadAdvisor(); });
+$('#fStudent').addEventListener('change', e => selectStudent(e.target.value));
+$('#btnRefresh').addEventListener('click', async () => { await loadAdvisor(); toast('Data refreshed'); });
+$('#btnAdd').addEventListener('click', () => { $('#sec-form').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('#fCourse').focus(), 400); });
+document.querySelectorAll('.nav a').forEach(a => a.addEventListener('click', () => {
+  document.querySelectorAll('.nav a').forEach(x => x.classList.remove('on')); a.classList.add('on');
+}));
+
+/* ============================================================
+   Demo data (used only when the backend cannot be reached)
+   Mimics the real API, including the BR13 future-date error.
+   ============================================================ */
+const mockDB = (() => {
+  const raw = {
+    A01: [['6501', 'Napat Chaiyo', 82], ['6502', 'Mali Sukjai', 57], ['6503', 'Arthit Wongsa', 23], ['6504', 'Pimchanok Rattana', 74], ['6505', 'Kittipong Dee', 35], ['6506', 'Siriporn Kaew', 48]],
+    A02: [['6601', 'Thanawat Srisuk', 68], ['6602', 'Ploy Intara', 29], ['6603', 'Chanin Boonma', 88], ['6604', 'Nicha Phan', 44]]
+  };
+  const db = { students: [], risk: {}, attendance: [], alerts: [], seq: 100 };
+  const courses = ['SE101', 'SE202', 'SE303'];
+  Object.entries(raw).forEach(([adv, list]) => list.forEach(([id, name, score], k) => {
+    db.students.push({ id, name, advisor_id: adv, baseline: 80 + (k * 4) % 15 });
+    db.risk[id] = Array.from({ length: 8 }, (_, i) => ({
+      week: i + 1,
+      risk_score: Math.max(5, Math.min(99, score - (7 - i) * 3 + ((i * 7 + k * 5) % 9) - 4))
+    }));
+    db.risk[id][7].risk_score = score;
+    for (let j = 0; j < 4; j++) {
+      const d = new Date(); d.setDate(d.getDate() - (j * 7 + 2));
+      db.attendance.push({ id: String(++db.seq), student_id: id, course_id: courses[(j + k) % 3],
+        date: d.toISOString().slice(0, 10), status: (score > 60 && j % 2 === 0) ? 'absent' : 'present' });
+    }
+    if (score >= 70) db.alerts.push({ id: String(++db.seq), advisor_id: adv, student_id: id, student_name: name, message: 'Risk score is above 70', status: 'new', created_at: todayStr() });
+    else if (score >= 45) db.alerts.push({ id: String(++db.seq), advisor_id: adv, student_id: id, student_name: name, message: 'Missed 2 classes this month', status: k % 2 ? 'viewed' : 'new', created_at: todayStr() });
+  }));
+  return db;
+})();
+
+function mockApi(method, path, body) {
+  let m;
+  const latest = id => mockDB.risk[id].at(-1).risk_score;
+  if (method === 'GET' && (m = path.match(/^\/api\/advisors\/([^/]+)\/students$/)))
+    return mockDB.students.filter(s => s.advisor_id === m[1]).map(s => ({ student_id: s.id, name: s.name, risk_score: latest(s.id), risk_level: levelOf(latest(s.id)), baseline_attendance_rate: s.baseline / 100 }));
+  if (method === 'GET' && (m = path.match(/^\/api\/advisors\/([^/]+)\/alerts$/)))
+    return mockDB.alerts.filter(a => a.advisor_id === m[1]);
+  if (method === 'GET' && (m = path.match(/^\/api\/students\/([^/]+)\/risk-scores$/)))
+    return mockDB.risk[m[1]] || [];
+  if (method === 'GET' && (m = path.match(/^\/api\/students\/([^/]+)\/attendance$/)))
+    return mockDB.attendance.filter(a => a.student_id === m[1]).map(a => ({ attendance_id: a.id, course_id: a.course_id, attendance_date: a.date, status: a.status }));
+  if (method === 'POST' && path === '/api/attendance') {
+    if (!body.student_id || !body.course_id || !body.date) throw new Error('Student, course and date are required');
+    if (body.date > todayStr()) throw new Error('Attendance date cannot be in the future (BR13)');
+    mockDB.attendance.push({ id: String(++mockDB.seq), student_id: body.student_id, course_id: body.course_id, date: body.date, status: body.status });
+    const r = mockDB.risk[body.student_id].at(-1);
+    r.risk_score = Math.max(0, Math.min(100, r.risk_score + (body.status === 'absent' ? 3 : -1)));
+    return { ok: true };
+  }
+  if (method === 'PATCH' && (m = path.match(/^\/api\/alerts\/([^/]+)$/))) {
+    const a = mockDB.alerts.find(x => x.id === m[1]); if (a) a.status = body.status; return { ok: true };
+  }
+  if (method === 'DELETE' && (m = path.match(/^\/api\/attendance\/([^/]+)$/))) {
+    mockDB.attendance = mockDB.attendance.filter(a => a.id !== m[1]); return { ok: true };
+  }
+  throw new Error('Unknown endpoint: ' + method + ' ' + path);
+}
+
+/* ============================================================
+   Start
+   ============================================================ */
+if (state.demo) $('#demoBadge').classList.add('show');
+$('#fDate').value = todayStr();
+loadAdvisor();
+</script>
+</body>
+</html>
